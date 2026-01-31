@@ -108,7 +108,7 @@ export const getProfile = async (req, res) => {
 export const registerComplaintByCitizen = async (req, res, next) => {
   
   try {
-    console.log("working register complaint");
+    console.log("in register complaint");
     console.log("request is", req.body);
     const fd = req.body;
     console.log("FD is", fd);
