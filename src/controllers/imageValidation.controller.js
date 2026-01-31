@@ -20,12 +20,15 @@ export const imageValidationByML = async (req, res, next) => {
         confidence: 1.0,
       }));
 
-      return res.json({
-        success: true,
-        allValid: true,
-        results,
-        message: "ML bypassed (dev mode)",
-      });
+      // ⏳ Add 2-second delay
+      return setTimeout(() => {
+        res.json({
+          success: true,
+          allValid: true,
+          results,
+          message: "ML bypassed (dev mode)",
+        });
+      }, 2000); // 2000 ms = 2 seconds
     }
 
     // ✅ ML MODE (REAL)

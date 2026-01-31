@@ -53,11 +53,13 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      message: "Profile updated successfully",
-      user,
-    });
+    return setTimeout(() => {
+      res.json({
+        success: true,
+        message: "Profile updated successfully",
+        user,
+      });
+    }, 3000);
   } catch (error) {
     console.error("Update profile error:", error);
     res.status(500).json({
