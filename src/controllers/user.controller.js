@@ -179,25 +179,76 @@ export const registerComplaintByCitizen = async (req, res, next) => {
 };
 
 // get all user complaints logic goes here
-export const getMycomplaints = async (req, res, next) => {
+export const getMycomplaints = async (req, res) => {
   try {
-    const complaints = await Complaint.find({ userId: req.userId })
-  .select("category ward landmark address complaint_status additionalNotes assigned_department createdAt")
-  .sort({ createdAt: -1 });
+    const { category, status, time, search } = req.query;
+    console.log("Query:", req.query);
 
-  if (!complaints) {
-      return res.status(404).json({
-        success: false,
-        message: "You have not registered",
-      });
+    const filter = {
+      userId: req.userId,
+    };
+
+    if (category && category !== "All") {
+      filter.category = category;
     }
+
+    if (status && status !== "All") {
+      filter.complaint_status = status;
+    }
+
+    if (search && search.trim() !== "") {
+      filter.$or = [
+        {
+          address: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          landmark: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          ward: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    if (time && time !== "All") {
+      const currentDate = new Date();
+      const startDate = new Date();
+
+      if (time === "30") {
+        startDate.setDate(currentDate.getDate() - 30);
+      }
+
+      if (time === "90") {
+        startDate.setDate(currentDate.getDate() - 90);
+      }
+
+      filter.createdAt = {
+        $gte: startDate,
+      };
+    }
+
+    console.log("Filter:", filter);
+    const complaints = await Complaint.find(filter)
+      .select(
+        "category ward landmark address complaint_status additionalNotes assigned_department createdAt"
+      )
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       complaints,
     });
   } catch (error) {
-    console.error("get my Complaint error:", error);
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Server error",
